@@ -4,6 +4,7 @@ import sys
 
 class Message():
   """Details about a specific message ID."""
+
   def __init__(self, message_id):
     self.message_id = message_id
     self.ones = [0] * 8   # bit set if 1 is always seen
@@ -28,11 +29,12 @@ class Info():
 
   def load(self, filename, start, end):
     """Given a CSV file, adds information about message IDs and their values."""
-    with open(filename, 'rb') as input:
-      reader = csv.reader(input)
+    with open(filename, 'rb') as inp:
+      reader = csv.reader(inp)
       next(reader, None)  # skip the CSV header
       for row in reader:
-        if not len(row): continue
+        if not len(row):
+          continue
         time = float(row[0])
         bus = int(row[2])
         if time < start or bus > 127:
@@ -53,12 +55,12 @@ class Info():
           self.messages[message_id] = Message(message_id)
           new_message = True
         message = self.messages[message_id]
-        bytes = bytearray.fromhex(data)
-        for i in range(len(bytes)):
-          ones = int(bytes[i])
+        bts = bytearray.fromhex(data)
+        for i in range(len(bts)):
+          ones = int(bts[i])
           message.ones[i] = ones if new_message else message.ones[i] & ones
           # Inverts the data and masks it to a byte to get the zeros as ones.
-          zeros = (~int(bytes[i])) & 0xff
+          zeros = (~int(bts[i])) & 0xff
           message.zeros[i] = zeros if new_message else message.zeros[i] & zeros
 
 def PrintUnique(log_file, low_range, high_range):
@@ -76,7 +78,8 @@ def PrintUnique(log_file, low_range, high_range):
     if message_id in low.messages:
       high.messages[message_id].printBitDiff(low.messages[message_id])
       found = True
-  if not found: print('No messages that transition from always low to always high found!')
+  if not found:
+    print('No messages that transition from always low to always high found!')
 
 if __name__ == "__main__":
   if len(sys.argv) < 4:

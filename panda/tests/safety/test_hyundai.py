@@ -56,8 +56,8 @@ class TestHyundaiSafety(common.PandaSafetyTest):
     values = {"CF_Clu_CruiseSwState": buttons}
     return self.packer.make_can_msg_panda("CLU11", 0, values)
 
-  def _gas_msg(self, val):
-    values = {"CF_Ems_AclAct": val, "AliveCounter": self.cnt_gas % 4}
+  def _gas_msg(self, gas):
+    values = {"CF_Ems_AclAct": gas, "AliveCounter": self.cnt_gas % 4}
     self.__class__.cnt_gas += 1
     return self.packer.make_can_msg_panda("EMS16", 0, values, fix_checksum=checksum)
 
@@ -68,14 +68,14 @@ class TestHyundaiSafety(common.PandaSafetyTest):
 
   def _speed_msg(self, speed):
     # panda safety doesn't scale, so undo the scaling
-    values = {"WHL_SPD_%s"%s: speed*0.03125 for s in ["FL", "FR", "RL", "RR"]}
+    values = {"WHL_SPD_%s" % s: speed * 0.03125 for s in ["FL", "FR", "RL", "RR"]}
     values["WHL_SPD_AliveCounter_LSB"] = (self.cnt_speed % 16) & 0x3
     values["WHL_SPD_AliveCounter_MSB"] = (self.cnt_speed % 16) >> 2
     self.__class__.cnt_speed += 1
     return self.packer.make_can_msg_panda("WHL_SPD11", 0, values)
 
-  def _pcm_status_msg(self, enabled):
-    values = {"ACCMode": enabled, "CR_VSM_Alive": self.cnt_cruise % 16}
+  def _pcm_status_msg(self, enable):
+    values = {"ACCMode": enable, "CR_VSM_Alive": self.cnt_cruise % 16}
     self.__class__.cnt_cruise += 1
     return self.packer.make_can_msg_panda("SCC12", 0, values, fix_checksum=checksum)
 
@@ -156,7 +156,6 @@ class TestHyundaiSafety(common.PandaSafetyTest):
       self.safety.set_torque_driver(-MAX_STEER * sign, -MAX_STEER * sign)
       self.assertFalse(self._tx(self._torque_msg((MAX_STEER - MAX_RATE_DOWN + 1) * sign)))
 
-
   def test_realtime_limits(self):
     self.safety.set_controls_allowed(True)
 
@@ -178,7 +177,6 @@ class TestHyundaiSafety(common.PandaSafetyTest):
       self.safety.set_timer(RT_INTERVAL + 1)
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA - 1))))
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA + 1))))
-
 
   def test_spam_cancel_safety_check(self):
     RESUME_BTN = 1
