@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# pylint: skip-file
 '''
 UBlox binary protocol handling
 
@@ -736,7 +737,6 @@ class UBlox:
           ret = self.buf[:n]
           self.buf = self.buf[n:]
           return ret
-
 
         def write(self, dat):
           pass
