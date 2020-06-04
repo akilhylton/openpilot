@@ -12,7 +12,7 @@ MIN_ACCEL = -3.0
 ISO_MAX_ACCEL = 2.0
 ISO_MIN_ACCEL = -3.5
 
-class TestToyotaSafety(common.PandaSafetyTest, common.InterceptorSafetyTest, \
+class TestToyotaSafety(common.PandaSafetyTest, common.InterceptorSafetyTest,
                        common.TorqueSteeringSafetyTest):
 
   TX_MSGS = [[0x283, 0], [0x2E6, 0], [0x2E7, 0], [0x33E, 0], [0x344, 0], [0x365, 0], [0x366, 0], [0x4CB, 0],  # DSU bus 0
@@ -32,7 +32,7 @@ class TestToyotaSafety(common.PandaSafetyTest, common.InterceptorSafetyTest, \
   MAX_RT_DELTA = 375
   RT_INTERVAL = 250000
   MAX_TORQUE_ERROR = 350
-  TORQUE_MEAS_TOLERANCE = 1 # toyota safety adds one to be conversative for rounding
+  TORQUE_MEAS_TOLERANCE = 1  # toyota safety adds one to be conversative for rounding
 
   def setUp(self):
     self.packer = CANPackerPanda("toyota_prius_2017_pt_generated")
@@ -52,21 +52,21 @@ class TestToyotaSafety(common.PandaSafetyTest, common.InterceptorSafetyTest, \
     values = {"ACCEL_CMD": accel}
     return self.packer.make_can_msg_panda("ACC_CONTROL", 0, values)
 
-  def _speed_msg(self, s):
-    values = {("WHEEL_SPEED_%s"%n): s for n in ["FR", "FL", "RR", "RL"]}
+  def _speed_msg(self, speed):
+    values = {("WHEEL_SPEED_%s" % n): speed for n in ["FR", "FL", "RR", "RL"]}
     return self.packer.make_can_msg_panda("WHEEL_SPEEDS", 0, values)
 
-  def _brake_msg(self, pressed):
-    values = {"BRAKE_PRESSED": pressed}
+  def _brake_msg(self, brake):
+    values = {"BRAKE_PRESSED": brake}
     return self.packer.make_can_msg_panda("BRAKE_MODULE", 0, values)
 
-  def _gas_msg(self, pressed):
+  def _gas_msg(self, gas):
     cruise_active = self.safety.get_controls_allowed()
-    values = {"GAS_RELEASED": not pressed, "CRUISE_ACTIVE": cruise_active}
+    values = {"GAS_RELEASED": not gas, "CRUISE_ACTIVE": cruise_active}
     return self.packer.make_can_msg_panda("PCM_CRUISE", 0, values)
 
-  def _pcm_status_msg(self, cruise_on):
-    values = {"CRUISE_ACTIVE": cruise_on}
+  def _pcm_status_msg(self, enable):
+    values = {"CRUISE_ACTIVE": enable}
     return self.packer.make_can_msg_panda("PCM_CRUISE", 0, values)
 
   # Toyota gas gains are the same
@@ -86,7 +86,7 @@ class TestToyotaSafety(common.PandaSafetyTest, common.InterceptorSafetyTest, \
           self.safety.set_controls_allowed(controls_allowed)
           self.safety.set_unsafe_mode(unsafe_mode)
           if controls_allowed:
-            should_tx = int(min_accel*1000) <= int(accel*1000) <= int(max_accel*1000)
+            should_tx = int(min_accel * 1000) <= int(accel * 1000) <= int(max_accel * 1000)
           else:
             should_tx = np.isclose(accel, 0, atol=0.0001)
           self.assertEqual(should_tx, self._tx(self._accel_msg(accel)))

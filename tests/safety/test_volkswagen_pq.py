@@ -53,7 +53,8 @@ class TestVolkswagenPqSafety(common.PandaSafetyTest):
     self.safety.init_tests()
 
   # override these inherited tests from PandaSafetyTest
-  def test_cruise_engaged_prev(self): pass
+  def test_cruise_engaged_prev(self):
+    pass
 
   def _set_prev_torque(self, t):
     self.safety.set_desired_torque_last(t)
@@ -76,8 +77,8 @@ class TestVolkswagenPqSafety(common.PandaSafetyTest):
     return to_send
 
   # ACC engaged status (shared message Motor_2)
-  def _pcm_status_msg(self, cruise):
-    self.__class__.cruise_engaged = cruise
+  def _pcm_status_msg(self, enable):
+    self.__class__.cruise_engaged = enable
     return self._motor_2_msg()
 
   # Driver steering input torque
